@@ -44,6 +44,9 @@ set_var_if_missing "ENABLE_FILE_LOGGING" "false" "File logging (Railway captures
 
 # Note: DATABASE_URL and REDIS_URL are automatically provided by Railway
 # when you add PostgreSQL and Redis services
+# These are required for the application to function properly:
+# - DATABASE_URL: PostgreSQL connection (for Prisma/ORM)
+# - REDIS_URL: Redis connection (for API response caching)
 
 echo "📋 API Keys Configuration"
 echo "⚠️  You need to set these manually with your actual API keys:"

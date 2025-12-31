@@ -44,9 +44,12 @@ fi
 # Check if REDIS_URL exists (indicates Redis is added)
 if railway variables --kv 2>/dev/null | grep -q "REDIS_URL"; then
     echo "✅ Redis detected (REDIS_URL found)"
+    REDIS_URL=$(railway variables --kv 2>/dev/null | grep "^REDIS_URL=" | cut -d'=' -f2-)
+    echo "   Redis URL: ${REDIS_URL:0:30}..." # Show first 30 chars
 else
     echo "⚠️  Redis not found"
     echo "   Add Redis via Railway Dashboard or run: railway add --database redis"
+    echo "   Redis is required for caching API responses"
 fi
 
 echo ""

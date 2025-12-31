@@ -111,6 +111,7 @@ railway status
 - `./scripts/railway-setup.sh` - Check current setup status
 - `./scripts/railway-env-config.sh` - Configure environment variables
 - `./scripts/railway-migrate.sh` - Run database migrations
+- `./scripts/railway-test-connections.sh` - Test database and Redis connections
 
 ## Troubleshooting
 
@@ -133,7 +134,13 @@ railway status
 
 ### Required (Auto-provided by Railway)
 - `DATABASE_URL` - PostgreSQL connection string (provided by PostgreSQL service)
+  - Used by Prisma ORM for database operations
+  - Required for storing application data (favorites, etc.)
+  
 - `REDIS_URL` - Redis connection string (provided by Redis service)
+  - Used for API response caching to improve performance
+  - Reduces external API calls and response times
+  - Required for optimal server performance
 
 ### Required (Manual configuration)
 - `ALPHA_VANTAGE_KEY` - Alpha Vantage API key
