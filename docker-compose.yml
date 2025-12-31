@@ -1,0 +1,41 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: corpoview-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --loglevel notice
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=redis"
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: corpoview-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: corpoview
+      POSTGRES_PASSWORD: corpoview_dev
+      POSTGRES_DB: corpoview
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=postgres"
+
+volumes:
+  redis-data:
+  postgres-data:
+
