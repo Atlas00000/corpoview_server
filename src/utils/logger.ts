@@ -23,7 +23,8 @@ class ServerLogger {
     this.isDevelopment = process.env.NODE_ENV === 'development'
     this.logLevel = (process.env.LOG_LEVEL as LogLevel) || (this.isDevelopment ? 'debug' : 'info')
     this.logDir = process.env.LOG_DIR || join(process.cwd(), 'logs')
-    this.enableFileLogging = process.env.ENABLE_FILE_LOGGING === 'true' || !this.isDevelopment
+    // Disable file logging in production by default (use Railway logs instead)
+    this.enableFileLogging = process.env.ENABLE_FILE_LOGGING === 'true'
     
     if (this.enableFileLogging && !existsSync(this.logDir)) {
       mkdir(this.logDir, { recursive: true }).catch((err) => {
