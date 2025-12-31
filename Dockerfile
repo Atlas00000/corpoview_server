@@ -54,8 +54,10 @@ COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
 RUN pnpm install --prod --frozen-lockfile && \
     pnpm store prune
 
-# Copy generated Prisma Client from builder stage (generated code)
+# Copy generated Prisma Client from builder stage
+# With pnpm, we need to copy both the generated .prisma directory and @prisma/client
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 
 # Copy built application
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
