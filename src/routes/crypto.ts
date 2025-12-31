@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import * as coingeckoService from '../services/coingecko'
 import * as alphaVantageService from '../services/alphaVantage'
 import { cacheConfigs } from '../middleware/cacheHeaders'
+import { formatErrorResponse } from '../utils/errors'
 
 const router: Router = Router()
 
@@ -19,7 +20,8 @@ router.get('/markets', cacheConfigs.marketData, async (req: Request, res: Respon
     res.json(data)
   } catch (error: any) {
     console.error('Error fetching crypto markets:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch crypto markets' })
+    const errorResponse = formatErrorResponse(error, 'CoinGecko')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -38,7 +40,8 @@ router.get('/price/:ids', async (req: Request, res: Response) => {
     res.json(data)
   } catch (error: any) {
     console.error('Error fetching crypto price:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch crypto price' })
+    const errorResponse = formatErrorResponse(error, 'CoinGecko')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -56,7 +59,8 @@ router.get('/history/:id', cacheConfigs.historical, async (req: Request, res: Re
     res.json(data)
   } catch (error: any) {
     console.error('Error fetching crypto history:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch crypto history' })
+    const errorResponse = formatErrorResponse(error, 'CoinGecko')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -70,7 +74,8 @@ router.get('/global', async (_req: Request, res: Response) => {
     res.json(data)
   } catch (error: any) {
     console.error('Error fetching global crypto data:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch global crypto data' })
+    const errorResponse = formatErrorResponse(error, 'CoinGecko')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -88,7 +93,8 @@ router.get('/intraday/:symbol', async (req: Request, res: Response) => {
     res.json(data)
   } catch (error: any) {
     console.error('Error fetching crypto intraday:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch crypto intraday data' })
+    const errorResponse = formatErrorResponse(error, 'Alpha Vantage')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -103,7 +109,8 @@ router.get('/exchange-rate/:from/:to', async (req: Request, res: Response) => {
     res.json(rate)
   } catch (error: any) {
     console.error('Error fetching crypto exchange rate:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch crypto exchange rate' })
+    const errorResponse = formatErrorResponse(error, 'Alpha Vantage')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 

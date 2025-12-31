@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { API_CONFIG } from '../config/api'
 import getRedisClient from '../config/redis'
+import { RateLimitError, ApiServiceError } from '../utils/errors'
 
 const baseUrl = API_CONFIG.coingecko.baseUrl
 
@@ -31,15 +32,33 @@ async function setCached(key: string, value: any, ttl: number = 300): Promise<vo
 }
 
 /**
- * Make API request
+ * Make API request with error handling
  */
 async function makeRequest(endpoint: string, params: Record<string, string> = {}): Promise<any> {
-  const response = await axios.get(`${baseUrl}${endpoint}`, {
-    params,
-    timeout: 10000,
-  })
+  try {
+    const response = await axios.get(`${baseUrl}${endpoint}`, {
+      params,
+      timeout: 10000,
+    })
 
-  return response.data
+    return response.data
+  } catch (error: any) {
+    // Handle rate limit errors (429)
+    if (error?.response?.status === 429) {
+      const retryAfter = error?.response?.headers?.['retry-after'] 
+        ? parseInt(error.response.headers['retry-after'])
+        : 60
+      
+      throw new RateLimitError(
+        'CoinGecko API rate limit exceeded. Please wait before making another request.',
+        'CoinGecko',
+        retryAfter
+      )
+    }
+    
+    // Re-throw other errors
+    throw error
+  }
 }
 
 /**
@@ -205,6 +224,6 @@ export async function getGlobalMarketData(): Promise<any> {
     return result
   }
 
-  throw new Error('Invalid response from CoinGecko')
+  throw new ApiServiceError('Invalid response format from CoinGecko API', 'CoinGecko', 502, 'INVALID_RESPONSE')
 }
 

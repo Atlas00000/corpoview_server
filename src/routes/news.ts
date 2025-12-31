@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import * as newsService from '../services/newsAPI'
 import { cacheConfigs } from '../middleware/cacheHeaders'
+import { formatErrorResponse } from '../utils/errors'
 
 const router: Router = Router()
 
@@ -18,7 +19,8 @@ router.get('/headlines', cacheConfigs.news, async (req: Request, res: Response) 
     res.json(articles)
   } catch (error: any) {
     console.error('Error fetching headlines:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch headlines' })
+    const errorResponse = formatErrorResponse(error, 'NewsAPI')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -58,7 +60,8 @@ router.get('/business', async (req: Request, res: Response) => {
     res.json(articles)
   } catch (error: any) {
     console.error('Error fetching business news:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch business news' })
+    const errorResponse = formatErrorResponse(error, 'NewsAPI')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 

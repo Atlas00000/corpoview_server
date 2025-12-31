@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import * as exchangeRateService from '../services/exchangeRate'
 import * as alphaVantageService from '../services/alphaVantage'
+import { formatErrorResponse } from '../utils/errors'
 
 const router: Router = Router()
 
@@ -15,7 +16,8 @@ router.get('/latest', async (req: Request, res: Response) => {
     res.json(rates)
   } catch (error: any) {
     console.error('Error fetching latest rates:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch latest rates' })
+    const errorResponse = formatErrorResponse(error)
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -30,7 +32,8 @@ router.get('/history/:base/:date', async (req: Request, res: Response) => {
     res.json(rates)
   } catch (error: any) {
     console.error('Error fetching historical rates:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch historical rates' })
+    const errorResponse = formatErrorResponse(error)
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -53,7 +56,8 @@ router.get('/convert', async (req: Request, res: Response) => {
     res.json(conversion)
   } catch (error: any) {
     console.error('Error converting currency:', error)
-    res.status(500).json({ error: error.message || 'Failed to convert currency' })
+    const errorResponse = formatErrorResponse(error)
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -68,7 +72,8 @@ router.get('/exchange-rate/:from/:to', async (req: Request, res: Response) => {
     res.json(rate)
   } catch (error: any) {
     console.error('Error fetching exchange rate:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch exchange rate' })
+    const errorResponse = formatErrorResponse(error, 'Alpha Vantage')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 

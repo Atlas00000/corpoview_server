@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { API_CONFIG } from '../config/api'
 import getRedisClient from '../config/redis'
+import { RateLimitError, ApiServiceError } from '../utils/errors'
 
 const apiKey = API_CONFIG.alphaVantage.apiKey
 const baseUrl = API_CONFIG.alphaVantage.baseUrl
@@ -54,12 +55,25 @@ async function makeRequest(params: Record<string, string>, retries: number = 3):
       
       // Alpha Vantage returns errors in the response body
       if (response.data['Error Message']) {
-        throw new Error(response.data['Error Message'])
+        const errorMsg = response.data['Error Message']
+        // Check if it's a rate limit message
+        if (errorMsg.toLowerCase().includes('frequency') || errorMsg.toLowerCase().includes('call limit')) {
+          throw new RateLimitError(
+            'Alpha Vantage API call frequency limit exceeded. Please wait before making another request.',
+            'Alpha Vantage',
+            60 // Retry after 60 seconds
+          )
+        }
+        throw new ApiServiceError(errorMsg, 'Alpha Vantage', 400, 'API_ERROR')
       }
       
       if (response.data['Note']) {
         // Rate limit exceeded
-        throw new Error('API call frequency limit exceeded. Please wait before making another request.')
+        throw new RateLimitError(
+          'Alpha Vantage API call frequency limit exceeded. Please wait before making another request.',
+          'Alpha Vantage',
+          60 // Retry after 60 seconds
+        )
       }
 
       return response.data
@@ -113,7 +127,7 @@ export async function getStockQuote(symbol: string): Promise<any> {
     return result
   }
 
-  throw new Error('Invalid response from Alpha Vantage')
+  throw new ApiServiceError('Invalid response format from Alpha Vantage API', 'Alpha Vantage', 502, 'INVALID_RESPONSE')
 }
 
 /**
@@ -155,7 +169,7 @@ export async function getIntradayData(
     return result.reverse() // Return in chronological order
   }
 
-  throw new Error('Invalid response from Alpha Vantage')
+  throw new ApiServiceError('Invalid response format from Alpha Vantage API', 'Alpha Vantage', 502, 'INVALID_RESPONSE')
 }
 
 /**
@@ -192,7 +206,7 @@ export async function getDailyData(symbol: string, outputsize: 'compact' | 'full
     return result.reverse() // Return in chronological order
   }
 
-  throw new Error('Invalid response from Alpha Vantage')
+  throw new ApiServiceError('Invalid response format from Alpha Vantage API', 'Alpha Vantage', 502, 'INVALID_RESPONSE')
 }
 
 /**
@@ -218,7 +232,7 @@ export async function getCompanyOverview(symbol: string): Promise<any> {
     return data
   }
 
-  throw new Error('Invalid response from Alpha Vantage')
+  throw new ApiServiceError('Invalid response format from Alpha Vantage API', 'Alpha Vantage', 502, 'INVALID_RESPONSE')
 }
 
 /**
@@ -259,7 +273,7 @@ export async function getCryptoExchangeRate(
     return result
   }
 
-  throw new Error('Invalid response from Alpha Vantage')
+  throw new ApiServiceError('Invalid response format from Alpha Vantage API', 'Alpha Vantage', 502, 'INVALID_RESPONSE')
 }
 
 /**
@@ -302,6 +316,6 @@ export async function getCryptoIntraday(
     return result.reverse() // Return in chronological order
   }
 
-  throw new Error('Invalid response from Alpha Vantage')
+  throw new ApiServiceError('Invalid response format from Alpha Vantage API', 'Alpha Vantage', 502, 'INVALID_RESPONSE')
 }
 

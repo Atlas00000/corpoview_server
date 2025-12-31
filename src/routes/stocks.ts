@@ -3,6 +3,7 @@ import * as alphaVantageService from '../services/alphaVantage'
 import * as polygonService from '../services/polygon'
 import * as fmpService from '../services/financialModelingPrep'
 import { cacheConfigs } from '../middleware/cacheHeaders'
+import { formatErrorResponse } from '../utils/errors'
 
 const router: Router = Router()
 
@@ -17,7 +18,8 @@ router.get('/quote/:symbol', cacheConfigs.realtime, async (req: Request, res: Re
     res.json(quote)
   } catch (error: any) {
     console.error('Error fetching stock quote:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch stock quote' })
+    const errorResponse = formatErrorResponse(error, 'Alpha Vantage')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -33,7 +35,8 @@ router.get('/intraday/:symbol', cacheConfigs.realtime, async (req: Request, res:
     res.json(data)
   } catch (error: any) {
     console.error('Error fetching intraday data:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch intraday data' })
+    const errorResponse = formatErrorResponse(error, 'Alpha Vantage')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -49,7 +52,8 @@ router.get('/daily/:symbol', cacheConfigs.marketData, async (req: Request, res: 
     res.json(data)
   } catch (error: any) {
     console.error('Error fetching daily data:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch daily data' })
+    const errorResponse = formatErrorResponse(error, 'Alpha Vantage')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -64,7 +68,8 @@ router.get('/overview/:symbol', async (req: Request, res: Response) => {
     res.json(overview)
   } catch (error: any) {
     console.error('Error fetching company overview:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch company overview' })
+    const errorResponse = formatErrorResponse(error, 'Alpha Vantage')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -105,7 +110,8 @@ router.get('/financials/:symbol', async (req: Request, res: Response) => {
     })
   } catch (error: any) {
     console.error('Error fetching financial statements:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch financial statements' })
+    const errorResponse = formatErrorResponse(error, 'Financial Modeling Prep')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
@@ -137,7 +143,8 @@ router.get('/earnings-calendar', async (req: Request, res: Response) => {
     res.json(calendar)
   } catch (error: any) {
     console.error('Error fetching earnings calendar:', error)
-    res.status(500).json({ error: error.message || 'Failed to fetch earnings calendar' })
+    const errorResponse = formatErrorResponse(error, 'Financial Modeling Prep')
+    res.status(errorResponse.statusCode).json(errorResponse.body)
   }
 })
 
